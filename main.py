@@ -1,74 +1,28 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
-import requests
-import json
+from fastapi.staticfiles import StaticFiles
+import os
+from app.api.endpoints import router as api_router
+from app.config import config
 
-app = FastAPI()
+app = FastAPI(
+    title="AI Interview Screener API",
+    description="Professional AI-powered interview evaluation system",
+    version="2.0.0"
+)
 
-OLLAMA = "http://127.0.0.1:11434/api/generate"
-MODEL = "llama3.2"
+# Include the modular routes
+app.include_router(api_router)
 
-class EvalReq(BaseModel):
-    answer: str
+# Mount static files for frontend
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_dir):
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+else:
+    @app.get("/", include_in_schema=False)
+    def home():
+        return RedirectResponse(url="/docs")
 
-class RankReq(BaseModel):
-    candidates: list[str]
-
-def ask_llama(prompt: str):
-    payload = {"model": MODEL, "prompt": prompt, "stream": False}
-    r = requests.post(OLLAMA, json=payload)
-    if r.status_code != 200:
-        raise HTTPException(500, "LLM error")
-    return r.json()["response"]
-
-@app.get("/")
-def home():
-    return RedirectResponse(url="/docs")
-
-@app.post("/evaluate-answer")
-def evaluate(req: EvalReq):
-    prompt = f"""
-Evaluate this answer briefly.
-
-Answer: {req.answer}
-
-Return ONLY JSON:
-{{
-  "score": 1-5,
-  "summary": "one-line summary",
-  "improvement": "one improvement"
-}}
-"""
-    out = ask_llama(prompt)
-    try:
-        result_json = json.loads(out)  # parse the LLM output into JSON
-    except:
-        raise HTTPException(500, f"Invalid JSON from LLM: {out}")
-    return result_json
-
-@app.post("/rank-candidates")
-def rank(req: RankReq):
-    results = []
-    for ans in req.candidates:
-        prompt = f"""
-Evaluate this answer briefly.
-
-Answer: {ans}
-
-Return ONLY JSON:
-{{
-  "score": 1-5,
-  "summary": "one-line summary",
-  "improvement": "one improvement"
-}}
-"""
-        out = ask_llama(prompt)
-        try:
-            res = json.loads(out)
-        except:
-            raise HTTPException(500, f"Invalid JSON from LLM: {out}")
-        results.append({"answer": ans, **res})
-    # Sort by score descending
-    results.sort(key=lambda x: x["score"], reverse=True)
-    return {"ranking": results}
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=config.DEBUG)

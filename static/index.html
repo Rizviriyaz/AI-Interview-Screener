@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Screener</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+    
+    <div class="container glass-panel animate-on-scroll">
+        <header class="animate-on-scroll delay-1">
+            <h1>AI Interview Screener</h1>
+            <p>Professional AI-powered interview evaluation system.</p>
+        </header>
+
+        <div class="tabs animate-on-scroll delay-2" id="tabs-container">
+            <div class="tab-indicator" id="tab-indicator"></div>
+            <button class="tab-btn active" id="btn-tab-single" onclick="switchTab('single')">Evaluate Single Answer</button>
+            <button class="tab-btn" id="btn-tab-batch" onclick="switchTab('batch')">Rank Candidates</button>
+        </div>
+
+        <main>
+            <!-- Single Evaluation Section -->
+            <section id="single-section" class="tab-content active">
+                <div class="guidance animate-on-scroll delay-3">
+                    <h3>How to use:</h3>
+                    <p>Enter an interview question and a candidate's answer below. The AI will evaluate it and return a score (1-5), a brief summary, and a suggestion for improvement.</p>
+                    <button class="btn-secondary" onclick="loadSingleExample()">Load Example</button>
+                </div>
+                
+                <div class="input-group animate-on-scroll delay-4">
+                    <label for="single-question">Interview Question:</label>
+                    <textarea id="single-question" rows="2" placeholder="e.g. Tell me about a time you handled a conflict..."></textarea>
+                </div>
+                
+                <div class="input-group animate-on-scroll delay-5">
+                    <label for="single-answer">Candidate Answer:</label>
+                    <textarea id="single-answer" rows="6" placeholder="Type or paste the candidate's answer here..."></textarea>
+                </div>
+                
+                <button class="btn-primary animate-on-scroll delay-6" onclick="evaluateSingle()" id="btn-eval">Evaluate Answer</button>
+                
+                <div id="single-loader" class="loader hidden"></div>
+                <div id="single-result" class="result-card hidden animate-fade-in-up"></div>
+            </section>
+
+            <!-- Batch Ranking Section -->
+            <section id="batch-section" class="tab-content">
+                <div class="guidance">
+                    <h3>How to use:</h3>
+                    <p>Enter an interview question and multiple candidate answers, separating each candidate's answer with `---` (three hyphens) on a new line. The AI will evaluate all of them and return a ranked list.</p>
+                    <button class="btn-secondary" onclick="loadBatchExample()">Load Example</button>
+                </div>
+                
+                <div class="input-group">
+                    <label for="batch-question">Interview Question:</label>
+                    <textarea id="batch-question" rows="2" placeholder="e.g. How do you handle difficult customers?"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label for="batch-answers">Candidate Answers (separated by ---):</label>
+                    <textarea id="batch-answers" rows="10" placeholder="Candidate 1 answer...&#10;---&#10;Candidate 2 answer..."></textarea>
+                </div>
+                
+                <button class="btn-primary" onclick="rankBatch()" id="btn-rank">Rank Candidates</button>
+                
+                <div id="batch-loader" class="loader hidden"></div>
+                <div id="batch-result" class="result-card hidden animate-fade-in-up"></div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
